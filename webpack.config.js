@@ -3,18 +3,20 @@
  */
 const glob = require('glob')
 const path = require('path')
+const webpack = require('webpack')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const pathResolve = (path) => path.resolve(__dirname, path)
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
+const pathResolve = (filepath) => path.resolve(__dirname, filepath)
 
-const entries = getEntries('./page/*.js')
+const entries = getEntries('./src/js/*.js')
 
 module.exports = {
   entry: entries,
   output: {
     path: pathResolve('./dist'),
-    filename: "[name].[chunkhash].js"
+    filename: "[name].[hash:8].js"
   },
   module: {
     rules: [
@@ -88,7 +90,7 @@ module.exports = {
     // 根据入口文件对象，生成对HTMLWebpackPlugin插件的调用
     ...Object.keys(entries).map((entry) => new HTMLWebpackPlugin({
       filename: `${entry}.html`,
-      template: `templates/${entry}.html`,
+      template: `src/view/${entry}.html`,
       inject: true,
       chunks: [entry]
     })),
@@ -103,15 +105,18 @@ module.exports = {
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendors', // 将公共模块提取，生成名为`vendors`的chunk
-      chunks: ['index'], // 提取哪些模块共有的部分
+      chunks: ['index', 'list', 'about'], // 提取哪些模块共有的部分
       minChunks: 1 // 提取至少3个模块共有的部分
     }),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    // 打开浏览器
+    new OpenBrowserPlugin({
+      url: 'http://localhost:8080'
+    }),
   ],
   devServer: {
     contentBase: './',
     host: '0.0.0.0',
-    port: 3000,
     inline: true,
     hot: true
   }
