@@ -97,12 +97,15 @@ module.exports = {
     new webpack.ProvidePlugin({
       $: 'jquery'
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        //supresses warnings, usually from module minification
-        warnings: false
-      }
-    }),
+    // 分离CSS和JS文件
+    new ExtractTextPlugin('css/[name].[hash:8].css'),
+
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: {
+    //     //supresses warnings, usually from module minification
+    //     warnings: false
+    //   }
+    // }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendors', // 将公共模块提取，生成名为`vendors`的chunk
       chunks: ['index', 'list', 'about'], // 提取哪些模块共有的部分
@@ -134,4 +137,22 @@ function getEntries(pathGlob) {
 
     return acc;
   }, {});
+}
+
+function deepClone(source){
+  if(!source || typeof source !== 'object'){
+    throw new Error('error arguments', 'shallowClone');
+  }
+  var targetObj = source.constructor === Array ? [] : {vendor: ['jquery']};
+  for(var keys in source){
+    if(source.hasOwnProperty(keys)){
+      if(source[keys] && typeof source[keys] === 'object'){
+        targetObj[keys] = source[keys].constructor === Array ? [] : {};
+        targetObj[keys] = deepClone(source[keys]);
+      }else{
+        targetObj[keys] = source[keys];
+      }
+    }
+  }
+  return targetObj;
 }
