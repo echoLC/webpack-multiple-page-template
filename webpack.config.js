@@ -92,7 +92,7 @@ module.exports = {
       filename: `${entry}.html`,
       template: `src/view/${entry}.html`,
       inject: true,
-      chunks: [entry]
+      chunks: [entry, 'vendors']
     })),
     new webpack.ProvidePlugin({
       $: 'jquery'

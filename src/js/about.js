@@ -3,3 +3,4 @@
  */
 require('../css/reset.css')
 require('../css/about.scss')
+
